@@ -2,6 +2,7 @@ import os
 import pathlib
 import struct
 from Crypto.Cipher import ARC2
+from Crypto.Hash import MD5
 from common import FW_PATH, OUTPUT_PATH
 
 BASEDIR = pathlib.Path(__file__).parent
@@ -10,9 +11,7 @@ BASEDIR = pathlib.Path(__file__).parent
 class SubaruFWFile:
     HEADER_FILENAME = "header.csv"
     
-    def __init__(self, filename: pathlib.Path, keyword: str):
-        self.arc = ARC2.new(keyword.encode("utf-8"), ARC2.MODE_CBC)
-    
+    def __init__(self, filename: pathlib.Path, keyword: str):    
         self.keyword = keyword
         self.f = open(filename, "rb")
 
@@ -50,8 +49,20 @@ class SubaruFWFile:
         self.decrypt_sections()
     
     def decrypt_sections(self):
+        RC2_SALT = b'\x00' * 11
+        RC2_IV = b'\x00' * 8
+        RC2_EFFECTIVE_KEYLEN = 40
+
         for filename in self.sections.keys():
-            self.sections[filename] = self.arc.decrypt(self.sections[filename])
+            keyword = "CsvKey" if filename == "header.csv" else self.keyword
+            print(f"Decrypting {filename} with key {keyword}")
+            h = MD5.new()
+            h.update(keyword.encode("utf-8"))
+
+            key = h.digest()[0:5] + RC2_SALT
+
+            arc = ARC2.new(key, ARC2.MODE_CBC, iv=RC2_IV, effective_keylen=RC2_EFFECTIVE_KEYLEN)
+            self.sections[filename] = arc.decrypt(self.sections[filename])
 
     def read_length(self, size=2):
         length = self.f.read(size)
@@ -62,7 +73,6 @@ class SubaruFWFile:
             length = struct.unpack('<I', length)[0]
         
         return length
-
 
     def read_string(self, size=2):
         length = self.read_length(size=size)
