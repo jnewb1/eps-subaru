@@ -19,7 +19,7 @@ ls output/FW/ # extracted versions of firmware
 ### 2021 outback EPS (EU):
 
 #### 34110AN021_AN031.pk2
-- output/FW/34110AN021_AN031/eps_RM11FE00.mot appears to be a section of it
+- output/FW/34110AN021_AN031/eps_RM11FE00.mot appears to be rom section
 
 ```bash
 # Determine format
@@ -35,6 +35,3 @@ binwalk --dd=".*" -C output/eps/ output/FW/34110AN021_AN031/eps_RM11FE00.mot
 ```
 
 - Format: [Motorola S-record](https://en.wikipedia.org/wiki/SREC_(file_format))
-
-- appears to be a [Renesas v850](https://en.wikipedia.org/wiki/V850)
-    - in IDA: NECv850
