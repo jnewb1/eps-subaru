@@ -14,3 +14,10 @@ python decrypt_xml.py # decrypt xml
 ls output/DB/ # XML data about how SSM4 operates and keys
 ls output/FW/ # extracted versions of firmware
 ```
+
+2021 outback EPS (EU):
+
+- 34110AN021_AN031.pk2
+    - output/34110AN021_AN031/eps_RM11FE00.mot appears to be a section of it
+- appears to be a [Renesas v850](https://en.wikipedia.org/wiki/V850)
+    - in IDA: NECv850
