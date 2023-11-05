@@ -1,3 +1,4 @@
+import itertools
 import os
 import pathlib
 import struct
@@ -28,22 +29,17 @@ class SubaruFWFile:
 
         while True:
             opcode = self.read_opcode()
-            print(f"opcode: {opcode}")
-
             if opcode == 0x8001:
                 pass
             elif opcode == 0xFFFF:
                 unused = self.f.read(2)
                 string = self.read_string()
-                print(f"class: {string}")
             elif opcode == 0x0000:
-                print("EOF")
                 break
 
             self.read_section()
 
             if self.f.tell() == file_size:
-                print("EOF2")
                 break
 
         self.decrypt_sections()
@@ -55,7 +51,6 @@ class SubaruFWFile:
 
         for filename in self.sections.keys():
             keyword = "CsvKey" if filename == "header.csv" else self.keyword
-            print(f"Decrypting {filename} with key {keyword}")
             h = MD5.new()
             h.update(keyword.encode("utf-8"))
 
@@ -76,9 +71,7 @@ class SubaruFWFile:
 
     def read_string(self, size=2):
         length = self.read_length(size=size)
-        print(length)
         d = self.f.read(length)
-        print(d)
         return d.decode("UTF-8")
 
     def read_opcode(self):
@@ -87,8 +80,6 @@ class SubaruFWFile:
 
     def read_section_body(self, filename):
         length = self.read_length()
-        print(f"Reading {filename} with length {length}")
-
         return self.f.read(length)
 
     def read_section(self):
@@ -103,6 +94,7 @@ class SubaruFWFile:
         for filename in self.sections.keys():
             with open(output_dir / filename, "wb") as f:
                 f.write(self.sections[filename])
-        
-fw = SubaruFWFile(FW_PATH / "82002FJ001_US.pak", "B601692E")
-fw.save_sections(OUTPUT_PATH / "FW" / "82002FJ001_US")
+
+for filename in itertools.chain(FW_PATH.glob("*.pak"), FW_PATH.glob("*.pk2")):
+    fw = SubaruFWFile(filename, "B601692E")
+    fw.save_sections(OUTPUT_PATH / "FW" / filename.stem)
