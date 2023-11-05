@@ -26,6 +26,10 @@ class SubaruFWFile:
     HEADER_FILENAME = "header.csv"
 
     PART_NO_TO_KEYWORD = create_part_database()
+
+    RC2_SALT = b'\x00' * 11
+    RC2_IV = b'\x00' * 8
+    RC2_EFFECTIVE_KEYLEN = 40
     
     def __init__(self, filename: pathlib.Path):
         part_no = filename.stem
@@ -64,18 +68,14 @@ class SubaruFWFile:
         self.decrypt_sections()
 
     def decrypt_sections(self):
-        RC2_SALT = b'\x00' * 11
-        RC2_IV = b'\x00' * 8
-        RC2_EFFECTIVE_KEYLEN = 40
-
         for filename in self.sections.keys():
             keyword = "CsvKey" if filename == "header.csv" else self.keyword
             h = MD5.new()
             h.update(keyword.encode("utf-8"))
 
-            key = h.digest()[0:5] + RC2_SALT
+            key = h.digest()[0:5] + self.RC2_SALT
 
-            arc = ARC2.new(key, ARC2.MODE_CBC, iv=RC2_IV, effective_keylen=RC2_EFFECTIVE_KEYLEN)
+            arc = ARC2.new(key, ARC2.MODE_CBC, iv=self.RC2_IV, effective_keylen=self.RC2_EFFECTIVE_KEYLEN)
             self.sections[filename] = arc.decrypt(self.sections[filename])
 
     def read_length(self, size=2):
