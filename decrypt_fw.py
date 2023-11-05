@@ -1,19 +1,38 @@
+import csv
 import itertools
 import os
 import pathlib
 import struct
 from Crypto.Cipher import ARC2
 from Crypto.Hash import MD5
-from common import FW_PATH, OUTPUT_PATH
+from common import ECU_DATA_PATH, FW_PATH, OUTPUT_PATH
 
 BASEDIR = pathlib.Path(__file__).parent
 
 
+def create_part_database():
+    db = {}
+    for csv_filename in FW_PATH.glob("*.csv"):
+        with open(csv_filename, "r", encoding='utf-16') as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                db[row["Part_Number"]] = row["Keyword"]
+                db[row["Pack_Number"]] = row["Keyword"]
+   
+    return db
+
 class SubaruFWFile:
     HEADER_FILENAME = "header.csv"
+
+    PART_NO_TO_KEYWORD = create_part_database()
     
-    def __init__(self, filename: pathlib.Path, keyword: str):    
-        self.keyword = keyword
+    def __init__(self, filename: pathlib.Path):
+        part_no = filename.stem
+        if part_no not in self.PART_NO_TO_KEYWORD:
+            raise Exception(f"{part_no} not in pack db")
+
+        self.keyword = self.PART_NO_TO_KEYWORD[filename.stem]
         self.f = open(filename, "rb")
 
         self.f.seek(0, os.SEEK_END)
@@ -43,7 +62,7 @@ class SubaruFWFile:
                 break
 
         self.decrypt_sections()
-    
+
     def decrypt_sections(self):
         RC2_SALT = b'\x00' * 11
         RC2_IV = b'\x00' * 8
@@ -95,6 +114,6 @@ class SubaruFWFile:
             with open(output_dir / filename, "wb") as f:
                 f.write(self.sections[filename])
 
-for filename in itertools.chain(FW_PATH.glob("*.pak"), FW_PATH.glob("*.pk2")):
-    fw = SubaruFWFile(filename, "B601692E")
+for filename in itertools.chain(ECU_DATA_PATH.glob("*.pak"), ECU_DATA_PATH.glob("*.pk2")):
+    fw = SubaruFWFile(filename)
     fw.save_sections(OUTPUT_PATH / "FW" / filename.stem)
