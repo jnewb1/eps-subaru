@@ -3,7 +3,9 @@
 ### pk2 decryption thanks to [atlas-tuning](https://github.com/atlas-tuning)!
 https://github.com/atlas-tuning/utilities/blob/main/java/src/main/java/com/github/manevolent/atlas/ssm4/PakFile.java
 
-## Getting Started
+
+## Firmware Update Analysis
+### Getting Started
 modify common.py to the path to your SSM4 installation
 
 ```bash
@@ -16,9 +18,9 @@ ls output/DB/ # XML data about how SSM4 operates and keys
 ls output/FW/ # extracted versions of firmware
 ```
 
-### 2021 outback EPS (EU):
+#### 2021 outback EPS (EU):
 
-#### 34110AN021_AN031.pk2
+##### 34110AN021_AN031.pk2
 - output/FW/34110AN021_AN031/eps_RM11FE00.mot appears to be rom section
 
 ```bash
@@ -35,3 +37,6 @@ binwalk --dd=".*" -C output/eps/ output/FW/34110AN021_AN031/eps_RM11FE00.mot
 ```
 
 - Format: [Motorola S-record](https://en.wikipedia.org/wiki/SREC_(file_format))
+
+## Firmware Dump:
+![subaru eps taken from steering rack](docs/subaru_eps.jpg)
