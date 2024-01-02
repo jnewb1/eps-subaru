@@ -38,6 +38,8 @@ binwalk --dd=".*" -C output/eps/ output/FW/34110AN021_AN031/eps_RM11FE00.mot
 
 - Format: [Motorola S-record](https://en.wikipedia.org/wiki/SREC_(file_format))
 
+*Firmware is encrpyted and decrpyted during flashing process by the ECU itself, need to dump firmware directly from the EPS to get the key*
+
 ## Firmware Dump:
 <img src="docs/eps.jpg" width="500em"/><br/>
 *subaru eps taken from steering rack*
