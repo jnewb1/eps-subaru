@@ -39,4 +39,9 @@ binwalk --dd=".*" -C output/eps/ output/FW/34110AN021_AN031/eps_RM11FE00.mot
 - Format: [Motorola S-record](https://en.wikipedia.org/wiki/SREC_(file_format))
 
 ## Firmware Dump:
-![subaru eps taken from steering rack](docs/subaru_eps.jpg)
+<img src="docs/eps.jpg" width="500em"/><br/>
+*subaru eps taken from steering rack*
+
+<img src="docs/pinout.png" width="500em"/><br/>
+*subaru eps pinout*
+
